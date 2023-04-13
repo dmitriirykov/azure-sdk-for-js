@@ -16,11 +16,44 @@ import { StreamableMethod } from '@azure-rest/core-client';
 import { TokenCredential } from '@azure/core-auth';
 
 // @public
+export interface ChatChoice {
+    delta?: ChatMessage;
+    finishReason: CompletionsFinishReason;
+    index: number;
+    message?: ChatMessage;
+}
+
+// @public (undocumented)
+export interface ChatCompletionsOptions {
+    frequencyPenalty?: number;
+    logitBias?: Record<string, number>;
+    maxTokens?: number;
+    messages: ChatMessage[];
+    model?: string;
+    n?: number;
+    presencePenalty?: number;
+    stop?: string[];
+    stream?: boolean;
+    temperature?: number;
+    topP?: number;
+    user?: string;
+}
+
+// @public
+export interface ChatMessage {
+    content?: string;
+    role: ChatRole;
+}
+
+// @public
+export type ChatRole = string;
+
+// @public
 export interface Choice {
-    finishReason?: string;
-    index?: number;
-    logprobs?: CompletionsLogProbs;
-    text?: string;
+    finishReason: CompletionsFinishReason;
+    index: number;
+    logprobs?: CompletionsLogProbabilityModel;
+    text: string;
 }
 
 // @public (undocumented)
@@ -28,7 +61,10 @@ export interface ClientOptions extends ClientOptions_2 {
 }
 
 // @public
-export interface CompletionsLogProbs {
+export type CompletionsFinishReason = string;
+
+// @public
+export interface CompletionsLogProbabilityModel {
     textOffset?: number[];
     tokenLogprobs?: number[];
     tokens?: string[];
@@ -38,8 +74,6 @@ export interface CompletionsLogProbs {
 // @public (undocumented)
 export interface CompletionsOptions {
     bestOf?: number;
-    cacheLevel?: number;
-    completionConfig?: string;
     echo?: boolean;
     frequencyPenalty?: number;
     logitBias?: Record<string, number>;
@@ -48,8 +82,9 @@ export interface CompletionsOptions {
     model?: string;
     n?: number;
     presencePenalty?: number;
-    prompt?: string[];
+    prompt?: string[] | string;
     stop?: string[];
+    stream?: boolean;
     temperature?: number;
     topP?: number;
     user?: string;
@@ -62,24 +97,25 @@ export interface CompletionsUsage {
     totalTokens: number;
 }
 
-// @public
-export function createOpenAI(endpoint: string, credential: AzureKeyCredential | TokenCredential, options?: ClientOptions): OpenAIContext;
+// @public (undocumented)
+export interface DeploymentChatCompletionsOptionsChatCompletions {
+    choices?: ChatChoice[];
+    created: number;
+    id: string;
+    usage: CompletionsUsage;
+}
 
 // @public (undocumented)
 export interface DeploymentCompletionsOptionsCompletions {
     choices?: Choice[];
-    created?: number;
-    id?: string;
-    model?: string;
-    object: "text_completion";
+    created: number;
+    id: string;
     usage: CompletionsUsage;
 }
 
 // @public (undocumented)
 export interface DeploymentEmbeddingsOptionsEmbeddings {
     data: EmbeddingItem[];
-    model?: string;
-    object: "list";
     usage: EmbeddingsUsage;
 }
 
@@ -87,13 +123,11 @@ export interface DeploymentEmbeddingsOptionsEmbeddings {
 export interface EmbeddingItem {
     embedding: number[];
     index: number;
-    object: "embedding";
 }
 
 // @public (undocumented)
 export interface EmbeddingsOptions {
     input: string | string[];
-    inputType?: string;
     model?: string;
     user?: string;
 }
@@ -104,14 +138,50 @@ export interface EmbeddingsUsage {
     totalTokens: number;
 }
 
+// Warning: (ae-forgotten-export) The symbol "OpenAIContext" needs to be exported by the entry point index.d.ts
+//
 // @public
+export function getChatCompletions(context: OpenAIContext, messages: ChatMessage[], deploymentId: string, options?: GetChatCompletionsOptions): Promise<DeploymentChatCompletionsOptionsChatCompletions>;
+
+// @public (undocumented)
+export interface GetChatCompletionsOptions extends RequestOptions {
+    accept?: "application/json";
+    content_type?: string;
+    frequencyPenalty?: number;
+    logitBias?: Record<string, number>;
+    maxTokens?: number;
+    model?: string;
+    n?: number;
+    presencePenalty?: number;
+    stop?: string[];
+    stream?: boolean;
+    temperature?: number;
+    topP?: number;
+    user?: string;
+}
+
+// @public (undocumented)
 export function getCompletions(context: OpenAIContext, deploymentId: string, options?: GetCompletionsOptions): Promise<DeploymentCompletionsOptionsCompletions>;
 
 // @public (undocumented)
+export function getCompletions(context: OpenAIContext, deploymentId: string, prompt: string, options?: GetCompletionsOptions): Promise<DeploymentCompletionsOptionsCompletions>;
+
+// @public (undocumented)
+export function getCompletions(context: OpenAIContext, deploymentId: string, prompt: string[], options?: GetCompletionsOptions): Promise<DeploymentCompletionsOptionsCompletions>;
+
+// @public (undocumented)
+export function getCompletions(context: OpenAIContext, deploymentId: string, options?: GetCompletionsOptions): Promise<DeploymentCompletionsOptionsCompletions>;
+
+// @public (undocumented)
+export function getCompletions(context: OpenAIContext, deploymentId: string, prompt: string, options?: GetCompletionsOptions): Promise<DeploymentCompletionsOptionsCompletions>;
+
+// @public (undocumented)
+export function getCompletions(context: OpenAIContext, deploymentId: string, prompt: string[], options?: GetCompletionsOptions): Promise<DeploymentCompletionsOptionsCompletions>;
+
+// @public (undocumented)
 export interface GetCompletionsOptions extends RequestOptions {
+    accept?: "application/json";
     bestOf?: number;
-    cacheLevel?: number;
-    completionConfig?: string;
     content_type?: string;
     echo?: boolean;
     frequencyPenalty?: number;
@@ -121,8 +191,9 @@ export interface GetCompletionsOptions extends RequestOptions {
     model?: string;
     n?: number;
     presencePenalty?: number;
-    prompt?: string[];
+    prompt?: string[] | string;
     stop?: string[];
+    stream?: boolean;
     temperature?: number;
     topP?: number;
     user?: string;
@@ -133,16 +204,26 @@ export function getEmbeddings(context: OpenAIContext, input: string | string[], 
 
 // @public (undocumented)
 export interface GetEmbeddingsOptions extends RequestOptions {
+    accept?: "application/json";
     content_type?: string;
-    inputType?: string;
     model?: string;
     user?: string;
 }
 
 // @public (undocumented)
-export type OpenAIContext = Client & {
-    path: Routes;
-};
+export class OpenAIClient {
+    constructor(endpoint: string, credential: AzureKeyCredential | TokenCredential, options?: ClientOptions);
+    // (undocumented)
+    getChatCompletions(messages: ChatMessage[], deploymentId: string, options?: GetChatCompletionsOptions): Promise<DeploymentChatCompletionsOptionsChatCompletions>;
+    // (undocumented)
+    getCompletions(deploymentId: string, prompt: string, options?: GetCompletionsOptions): Promise<DeploymentCompletionsOptionsCompletions>;
+    // (undocumented)
+    getCompletions(deploymentId: string, prompt: string[], options?: GetCompletionsOptions): Promise<DeploymentCompletionsOptionsCompletions>;
+    // (undocumented)
+    getCompletions(deploymentId: string, options?: GetCompletionsOptions): Promise<DeploymentCompletionsOptionsCompletions>;
+    // (undocumented)
+    getEmbeddings(input: string | string[], deploymentId: string, options?: GetEmbeddingsOptions): Promise<DeploymentEmbeddingsOptionsEmbeddings>;
+}
 
 // @public (undocumented)
 export interface RequestOptions {
@@ -155,10 +236,6 @@ export interface RequestOptions {
         skipUrlEncoding?: boolean;
     };
 }
-
-// Warnings were encountered during analysis:
-//
-// src/rest/clientDefinitions.ts:46:3 - (ae-forgotten-export) The symbol "Routes" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 
