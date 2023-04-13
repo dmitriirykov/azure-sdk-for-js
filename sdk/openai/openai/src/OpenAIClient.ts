@@ -19,52 +19,40 @@ import {
 } from "./api/index.js";
 
 export class OpenAIClient {
-  private _client: OpenAIContext;
+    private _client: OpenAIContext;
+    private _model?: string;
 
-  /** Azure OpenAI APIs for completions and search */
-  constructor(
-    endpoint: string,
-    credential: AzureKeyCredential | TokenCredential,
-    options: ClientOptions = {}
-  ) {
-    this._client = createOpenAI(endpoint, credential, options);
-  }
+    /** Azure OpenAI APIs for completions and search */
+    constructor(endpoint: string, credential: AzureKeyCredential | TokenCredential, options: ClientOptions = {}) {
+        this._client = createOpenAI(endpoint, credential, options);
+    }
 
-  getEmbeddings(
-    input: string | string[],
-    deploymentId: string,
-    options: GetEmbeddingsOptions = { requestOptions: {} }
-  ): Promise<DeploymentEmbeddingsOptionsEmbeddings> {
-    return getEmbeddings(this._client, input, deploymentId, options);
-  }
+    getEmbeddings(input: string, options?: GetEmbeddingsOptions): Promise<DeploymentEmbeddingsOptionsEmbeddings>;
+    getEmbeddings(input: string[], options?: GetEmbeddingsOptions): Promise<DeploymentEmbeddingsOptionsEmbeddings>;
+    getEmbeddings(input: string, options?: GetEmbeddingsOptions): Promise<DeploymentEmbeddingsOptionsEmbeddings>;
+    getEmbeddings(input: string[], options?: GetEmbeddingsOptions): Promise<DeploymentEmbeddingsOptionsEmbeddings>;
+    getEmbeddings(input: string | string[], options: GetEmbeddingsOptions = { requestOptions: {} }): Promise<DeploymentEmbeddingsOptionsEmbeddings> {
+        const model = this.getModelName(options);
+        return getEmbeddings(this._client, input, model, options);
+    }
 
-  getChatCompletions(
-    messages: ChatMessage[],
-    deploymentId: string,
-    options: GetChatCompletionsOptions = { requestOptions: {} }
-  ): Promise<DeploymentChatCompletionsOptionsChatCompletions> {
-    return getChatCompletions(this._client, messages, deploymentId, options);
-  }
+    getChatCompletions(messages: ChatMessage[], options: GetChatCompletionsOptions = { requestOptions: {} }): Promise<DeploymentChatCompletionsOptionsChatCompletions> {
+        const model = this.getModelName(options);
+        return getChatCompletions(this._client, messages, model, options);
+    }
 
-  getCompletions(
-    deploymentId: string,
-    prompt: string,
-    options?: GetCompletionsOptions
-  ): Promise<DeploymentCompletionsOptionsCompletions>;
-  getCompletions(
-    deploymentId: string,
-    prompt: string[],
-    options?: GetCompletionsOptions
-  ): Promise<DeploymentCompletionsOptionsCompletions>;
-  getCompletions(
-    deploymentId: string,
-    options?: GetCompletionsOptions
-  ): Promise<DeploymentCompletionsOptionsCompletions>;
-  getCompletions(
-    deploymentId: string,
-    promptOrOptions?: string | string[] | GetCompletionsOptions,
-    options: GetCompletionsOptions = { requestOptions: {} }
-  ): Promise<DeploymentCompletionsOptionsCompletions> {
-    return getCompletions(this._client, deploymentId, promptOrOptions as any, options);
-  }
+    getCompletions(prompt: string, options?: GetCompletionsOptions): Promise<DeploymentCompletionsOptionsCompletions>;
+    getCompletions(prompt: string[], options?: GetCompletionsOptions): Promise<DeploymentCompletionsOptionsCompletions>;
+    getCompletions(options?: GetCompletionsOptions): Promise<DeploymentCompletionsOptionsCompletions>;
+    getCompletions(prompt: string, options?: GetCompletionsOptions): Promise<DeploymentCompletionsOptionsCompletions>;
+    getCompletions(prompt: string[], options?: GetCompletionsOptions): Promise<DeploymentCompletionsOptionsCompletions>;
+    getCompletions(options?: GetCompletionsOptions): Promise<DeploymentCompletionsOptionsCompletions>;
+    getCompletions(promptOrOptions?: string | string[] | GetCompletionsOptions, options: GetCompletionsOptions = { requestOptions: {} }): Promise<DeploymentCompletionsOptionsCompletions> {
+        const model = this.getModelName(options);
+        return getCompletions(this._client, model, promptOrOptions as any, options);
+    }
+
+    private getModelName(options: { model?: string }): string {
+        return options.model ?? this._model ?? "gpt-35-turbo";
+    }
 }

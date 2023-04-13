@@ -2,20 +2,27 @@
 // Licensed under the MIT license.
 
 import { RequestParameters } from "@azure-rest/core-client";
-import { EmbeddingsOptions, CompletionsOptions, ChatCompletionsOptions } from "./models.js";
+import {
+  EmbeddingsOptions,
+  CompletionsOptions,
+  ChatCompletionsOptions,
+} from "./models.js";
 
 export interface GetEmbeddingsBodyParam {
-  body?: EmbeddingsOptions;
+    body?: EmbeddingsOptions;
 }
 
 export interface GetCompletionsBodyParam {
-  body?: CompletionsOptions;
+    body?: CompletionsOptions;
 }
 
 export interface GetChatCompletionsBodyParam {
-  body?: ChatCompletionsOptions;
+    body?: ChatCompletionsOptions;
 }
 
-export type GetEmbeddingsParameters = GetEmbeddingsBodyParam & RequestParameters;
-export type GetCompletionsParameters = GetCompletionsBodyParam & RequestParameters;
-export type GetChatCompletionsParameters = GetChatCompletionsBodyParam & RequestParameters;
+export type GetEmbeddingsParameters = GetEmbeddingsBodyParam &
+      RequestParameters;
+export type GetCompletionsParameters = GetCompletionsBodyParam &
+      RequestParameters;
+export type GetChatCompletionsParameters = GetChatCompletionsBodyParam &
+      RequestParameters;

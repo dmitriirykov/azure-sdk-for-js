@@ -10,12 +10,8 @@ import { ClientOptions } from "../common/interfaces.js";
 export { OpenAIContext } from "../rest/index.js";
 
 /** Azure OpenAI APIs for completions and search */
-export function createOpenAI(
-  endpoint: string,
-  credential: AzureKeyCredential | TokenCredential,
-  options: ClientOptions = {}
-): OpenAIContext {
-  const baseUrl = endpoint;
-  const clientContext = getClient(baseUrl, credential, options);
-  return clientContext;
+export function createOpenAI(endpoint: string, credential: AzureKeyCredential | TokenCredential, options: ClientOptions = {}): OpenAIContext {
+    const baseUrl = endpoint;
+    const clientContext = getClient(baseUrl, credential, options);
+    return clientContext;
 }
