@@ -58,6 +58,11 @@ export class OpenAIClient {
     }
 
     private getModel(options: { model?: string }): string {
-        return options.model ?? this._model ?? "gpt-35-turbo";
+        const model = options.model ?? this._model;
+        if (!model) {
+          throw new Error("No model was specified in the client or in the operation options.");
+        }
+
+        return model;
     }
 }
