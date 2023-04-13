@@ -4,11 +4,11 @@
 
 ```ts
 
-import { AzureKeyCredential } from '@azure/core-auth';
 import { Client } from '@azure-rest/core-client';
 import { ClientOptions as ClientOptions_2 } from '@azure-rest/core-client';
 import { ErrorResponse } from '@azure-rest/core-client';
 import { HttpResponse } from '@azure-rest/core-client';
+import { KeyCredential } from '@azure/core-auth';
 import { RawHttpHeaders } from '@azure/core-rest-pipeline';
 import { RawHttpHeadersInput } from '@azure/core-rest-pipeline';
 import { RequestParameters } from '@azure-rest/core-client';
@@ -212,20 +212,20 @@ export interface GetEmbeddingsOptions extends RequestOptions {
 
 // @public (undocumented)
 export class OpenAIClient {
-    constructor(endpoint: string, credential: AzureKeyCredential | TokenCredential, options?: ClientOptions);
-    constructor(endpoint: string, credential: AzureKeyCredential | TokenCredential, model: string, options?: ClientOptions);
+    constructor(openAiKey: KeyCredential, options?: ClientOptions);
+    constructor(endpoint: string, credential: KeyCredential | TokenCredential, options?: ClientOptions);
     // (undocumented)
-    getChatCompletions(messages: ChatMessage[], options?: GetChatCompletionsOptions): Promise<DeploymentChatCompletionsOptionsChatCompletions>;
+    getChatCompletions(deploymentOrModelName: string, messages: ChatMessage[], options?: GetChatCompletionsOptions): Promise<DeploymentChatCompletionsOptionsChatCompletions>;
     // (undocumented)
-    getCompletions(prompt: string, options?: GetCompletionsOptions): Promise<DeploymentCompletionsOptionsCompletions>;
+    getCompletions(deploymentOrModelName: string, prompt: string, options?: GetCompletionsOptions): Promise<DeploymentCompletionsOptionsCompletions>;
     // (undocumented)
-    getCompletions(prompt: string[], options?: GetCompletionsOptions): Promise<DeploymentCompletionsOptionsCompletions>;
+    getCompletions(deploymentOrModelName: string, prompt: string[], options?: GetCompletionsOptions): Promise<DeploymentCompletionsOptionsCompletions>;
     // (undocumented)
-    getCompletions(options?: GetCompletionsOptions): Promise<DeploymentCompletionsOptionsCompletions>;
+    getCompletions(deploymentOrModelName: string, options?: GetCompletionsOptions): Promise<DeploymentCompletionsOptionsCompletions>;
     // (undocumented)
-    getEmbeddings(input: string, options?: GetEmbeddingsOptions): Promise<DeploymentEmbeddingsOptionsEmbeddings>;
+    getEmbeddings(deploymentOrModelName: string, input: string, options?: GetEmbeddingsOptions): Promise<DeploymentEmbeddingsOptionsEmbeddings>;
     // (undocumented)
-    getEmbeddings(input: string[], options?: GetEmbeddingsOptions): Promise<DeploymentEmbeddingsOptionsEmbeddings>;
+    getEmbeddings(deploymentOrModelName: string, input: string[], options?: GetEmbeddingsOptions): Promise<DeploymentEmbeddingsOptionsEmbeddings>;
 }
 
 // @public (undocumented)

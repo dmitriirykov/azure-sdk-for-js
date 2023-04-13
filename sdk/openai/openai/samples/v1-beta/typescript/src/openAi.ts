@@ -2,10 +2,7 @@
 // Licensed under the MIT License.
 
 /**
- *
- *
  * @summary test getCompletions
- * @azsdk-weight 100
  */
 
 import { OpenAIClient } from "@azure/ai-openai";
@@ -16,8 +13,7 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 // You will need to set these environment variables or edit the following values
-const endpoint = process.env["ENDPOINT"] || "<openai endpoint>";
-const azureApiKey = process.env["AZURE_API_KEY"] || "<api key>";
+const openApiKey = process.env["OPENAI_API_KEY"] || "<api key>";
 const model = process.env["MODEL_NAME"] || "<model name>";
 
 const doc = "Hello world!";
@@ -25,7 +21,7 @@ const doc = "Hello world!";
 export async function main() {
   console.log("== Get completions Sample ==");
 
-  const client = new OpenAIClient(endpoint, new AzureKeyCredential(azureApiKey));
+  const client = new OpenAIClient(new AzureKeyCredential(openApiKey));
 
   const result = await client.getCompletions(model, doc);
 

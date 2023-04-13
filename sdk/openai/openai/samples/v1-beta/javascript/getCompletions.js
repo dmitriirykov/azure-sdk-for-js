@@ -13,7 +13,7 @@ require("dotenv").config();
 
 // You will need to set these environment variables or edit the following values
 const endpoint = process.env["ENDPOINT"] || "<openai endpoint>";
-const apiKey = process.env["OPENAI_API_KEY"] || "<api key>";
+const azureApiKey = process.env["AZURE_API_KEY"] || "<api key>";
 const model = process.env["MODEL_NAME"] || "<model name>";
 
 const doc = "Hello world!";
@@ -21,9 +21,9 @@ const doc = "Hello world!";
 async function main() {
   console.log("== Get completions Sample ==");
 
-  const client = new OpenAIClient(endpoint, new AzureKeyCredential(apiKey), model);
+  const client = new OpenAIClient(endpoint, new AzureKeyCredential(azureApiKey));
 
-  const result = await client.getCompletions(doc);
+  const result = await client.getCompletions(model, doc);
 
   console.log(result?.choices?.[0].text);
 }

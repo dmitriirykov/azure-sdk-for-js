@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { TokenCredential, AzureKeyCredential } from "@azure/core-auth";
+import { TokenCredential, KeyCredential, AzureKeyCredential } from "@azure/core-auth";
 import { ClientOptions } from "./common/interfaces.js";
 import {
   DeploymentEmbeddingsOptionsEmbeddings,
@@ -18,86 +18,129 @@ import {
   GetChatCompletionsOptions,
 } from "./api/index.js";
 
+function createOpenAIEndpoint(version: number): string {
+  return `https://api.openai.com/v${version}`;
+}
+
 export class OpenAIClient {
   private _client: OpenAIContext;
-  private _model?: string;
+  private _isAzure = false;
 
   /** Azure OpenAI APIs for completions and search */
+  constructor(openAiKey: KeyCredential, options?: ClientOptions);
   constructor(
     endpoint: string,
-    credential: AzureKeyCredential | TokenCredential,
+    credential: KeyCredential | TokenCredential,
     options?: ClientOptions
   );
   constructor(
-    endpoint: string,
-    credential: AzureKeyCredential | TokenCredential,
-    model: string,
-    options?: ClientOptions
-  );
-  constructor(
-    endpoint: string,
-    credential: AzureKeyCredential | TokenCredential,
-    modelOrOptions: string | ClientOptions = {},
+    endpointOrOpenAiKey: string | KeyCredential,
+    credOrOptions: KeyCredential | TokenCredential | ClientOptions = {},
     options: ClientOptions = {}
   ) {
     let opts: ClientOptions;
-    if (typeof modelOrOptions === "string") {
-      this._model = modelOrOptions;
+    let endpoint: string;
+    let cred: KeyCredential | TokenCredential;
+    if (typeof endpointOrOpenAiKey === "string") {
+      endpoint = endpointOrOpenAiKey;
+      cred = credOrOptions as KeyCredential | TokenCredential;
       opts = options;
+      this._isAzure = true;
     } else {
-      opts = modelOrOptions;
+      endpoint = createOpenAIEndpoint(1);
+      cred = endpointOrOpenAiKey;
+      if (!endpointOrOpenAiKey.key.startsWith("Bearer ")) {
+        cred = new AzureKeyCredential(`Bearer ${endpointOrOpenAiKey.key}`);
+      }
+      const { credentials, ...restOpts } = credOrOptions as ClientOptions;
+      opts = {
+        credentials: {
+          apiKeyHeaderName: credentials?.apiKeyHeaderName ?? "Authorization",
+          scopes: credentials?.scopes,
+        },
+        ...restOpts,
+      };
     }
-    this._client = createOpenAI(endpoint, credential, opts);
+    this._client = createOpenAI(endpoint, cred, {
+      ...opts,
+      ...(this._isAzure
+        ? {}
+        : {
+            additionalPolicies: [
+              ...(opts.additionalPolicies ?? []),
+              {
+                position: "perCall",
+                policy: {
+                  name: "openAiEndpoint",
+                  sendRequest: (request, next) => {
+                    const obj = new URL(request.url);
+                    const parts = obj.pathname.split("/");
+                    obj.pathname = `/${parts[1]}/${parts[parts.length - 1]}`;
+                    obj.searchParams.delete("api-version");
+                    request.url = obj.toString();
+                    return next(request);
+                  },
+                },
+              },
+            ],
+          }),
+    });
   }
 
-  private getModel(options: { model?: string }): string {
-    const model = options.model ?? this._model;
-    if (!model) {
-      throw new Error("No model was specified in the client or in the operation options.");
+  private setModel(model: string, options: { model?: string }): void {
+    if (!this._isAzure) {
+      options.model = model;
     }
-    return model;
   }
 
   getEmbeddings(
+    deploymentOrModelName: string,
     input: string,
     options?: GetEmbeddingsOptions
   ): Promise<DeploymentEmbeddingsOptionsEmbeddings>;
   getEmbeddings(
+    deploymentOrModelName: string,
     input: string[],
     options?: GetEmbeddingsOptions
   ): Promise<DeploymentEmbeddingsOptionsEmbeddings>;
   getEmbeddings(
+    deploymentOrModelName: string,
     input: string | string[],
     options: GetEmbeddingsOptions = { requestOptions: {} }
   ): Promise<DeploymentEmbeddingsOptionsEmbeddings> {
-    const model = this.getModel(options);
-    return getEmbeddings(this._client, input, model, options);
+    this.setModel(deploymentOrModelName, options);
+    return getEmbeddings(this._client, input, deploymentOrModelName, options);
   }
 
   getChatCompletions(
+    deploymentOrModelName: string,
     messages: ChatMessage[],
     options: GetChatCompletionsOptions = { requestOptions: {} }
   ): Promise<DeploymentChatCompletionsOptionsChatCompletions> {
-    const model = this.getModel(options);
-    return getChatCompletions(this._client, messages, model, options);
+    this.setModel(deploymentOrModelName, options);
+    return getChatCompletions(this._client, messages, deploymentOrModelName, options);
   }
 
   getCompletions(
+    deploymentOrModelName: string,
     prompt: string,
     options?: GetCompletionsOptions
   ): Promise<DeploymentCompletionsOptionsCompletions>;
   getCompletions(
+    deploymentOrModelName: string,
     prompt: string[],
     options?: GetCompletionsOptions
   ): Promise<DeploymentCompletionsOptionsCompletions>;
   getCompletions(
+    deploymentOrModelName: string,
     options?: GetCompletionsOptions
   ): Promise<DeploymentCompletionsOptionsCompletions>;
   getCompletions(
+    deploymentOrModelName: string,
     promptOrOptions?: string | string[] | GetCompletionsOptions,
     options: GetCompletionsOptions = { requestOptions: {} }
   ): Promise<DeploymentCompletionsOptionsCompletions> {
-    const model = this.getModel(options);
-    return getCompletions(this._client, model, promptOrOptions as any, options);
+    this.setModel(deploymentOrModelName, options);
+    return getCompletions(this._client, deploymentOrModelName, promptOrOptions as any, options);
   }
 }

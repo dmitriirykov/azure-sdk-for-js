@@ -20,11 +20,11 @@ export default function createClient(
   const baseUrl = options.baseUrl ?? `${endpoint}/openai`;
   options.apiVersion = options.apiVersion ?? "2023-03-15-preview";
   options = {
-    ...options,
     credentials: {
       scopes: ["https://cognitiveservices.azure.com/.default"],
       apiKeyHeaderName: "api-key",
     },
+    ...options,
   };
 
   const userAgentInfo = `azsdk-js-ai-openai-rest/1.0.0-beta.1`;

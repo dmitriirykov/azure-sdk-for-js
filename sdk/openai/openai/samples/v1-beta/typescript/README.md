@@ -16,6 +16,7 @@ These sample programs show how to use the TypeScript client libraries for Azure 
 | **File Name**                       | **Description**     |
 | ----------------------------------- | ------------------- |
 | [getCompletions.ts][getcompletions] | test getCompletions |
+| [openAi.ts][openai]                 | test getCompletions |
 
 ## Prerequisites
 
@@ -62,7 +63,7 @@ node dist/getCompletions.js
 Alternatively, run a single sample with the correct environment variables set (setting up the `.env` file is not required if you do this), for example (cross-platform):
 
 ```bash
-npx cross-env ENDPOINT="<endpoint>" OPENAI_API_KEY="<openai api key>" MODEL_NAME="<model name>" node dist/getCompletions.js
+npx cross-env ENDPOINT="<endpoint>" AZURE_API_KEY="<azure api key>" MODEL_NAME="<model name>" node dist/getCompletions.js
 ```
 
 ## Next Steps
@@ -70,6 +71,7 @@ npx cross-env ENDPOINT="<endpoint>" OPENAI_API_KEY="<openai api key>" MODEL_NAME
 Take a look at our [API Documentation][apiref] for more information about the APIs that are available in the clients.
 
 [getcompletions]: https://github.com/Azure/azure-sdk-for-js/blob/main/sdk/openai/openai/samples/v1-beta/typescript/src/getCompletions.ts
+[openai]: https://github.com/Azure/azure-sdk-for-js/blob/main/sdk/openai/openai/samples/v1-beta/typescript/src/openAi.ts
 [apiref]: https://docs.microsoft.com/javascript/api/@azure/ai-openai
 [freesub]: https://azure.microsoft.com/free/
 [createinstance_azurecognitiveservicesinstance]: https://learn.microsoft.com/en-us/azure/cognitive-services/openai/how-to/create-resource
