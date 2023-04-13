@@ -1,7 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { TokenCredential, KeyCredential, AzureKeyCredential } from "@azure/core-auth";
+import {
+  TokenCredential,
+  KeyCredential,
+  AzureKeyCredential,
+  isTokenCredential,
+} from "@azure/core-auth";
 import { ClientOptions } from "./common/interfaces.js";
 import {
   DeploymentEmbeddingsOptionsEmbeddings,
@@ -22,37 +27,42 @@ function createOpenAIEndpoint(version: number): string {
   return `https://api.openai.com/v${version}`;
 }
 
+function isCred(cred: Record<string, any>): cred is TokenCredential | KeyCredential {
+  return isTokenCredential(cred) || cred.key !== undefined;
+}
+
 export class OpenAIClient {
   private _client: OpenAIContext;
   private _isAzure = false;
 
   /** Azure OpenAI APIs for completions and search */
-  constructor(openAiKey: KeyCredential, options?: ClientOptions);
+  constructor(openAiKey: string, options?: ClientOptions);
   constructor(
     endpoint: string,
     credential: KeyCredential | TokenCredential,
     options?: ClientOptions
   );
   constructor(
-    endpointOrOpenAiKey: string | KeyCredential,
+    endpointOrOpenAiKey: string,
     credOrOptions: KeyCredential | TokenCredential | ClientOptions = {},
     options: ClientOptions = {}
   ) {
     let opts: ClientOptions;
     let endpoint: string;
     let cred: KeyCredential | TokenCredential;
-    if (typeof endpointOrOpenAiKey === "string") {
+    if (isCred(credOrOptions)) {
       endpoint = endpointOrOpenAiKey;
-      cred = credOrOptions as KeyCredential | TokenCredential;
+      cred = credOrOptions;
       opts = options;
       this._isAzure = true;
     } else {
       endpoint = createOpenAIEndpoint(1);
-      cred = endpointOrOpenAiKey;
-      if (!endpointOrOpenAiKey.key.startsWith("Bearer ")) {
-        cred = new AzureKeyCredential(`Bearer ${endpointOrOpenAiKey.key}`);
-      }
-      const { credentials, ...restOpts } = credOrOptions as ClientOptions;
+      cred = new AzureKeyCredential(
+        endpointOrOpenAiKey.startsWith("Bearer ")
+          ? endpointOrOpenAiKey
+          : `Bearer ${endpointOrOpenAiKey}`
+      );
+      const { credentials, ...restOpts } = credOrOptions;
       opts = {
         credentials: {
           apiKeyHeaderName: credentials?.apiKeyHeaderName ?? "Authorization",

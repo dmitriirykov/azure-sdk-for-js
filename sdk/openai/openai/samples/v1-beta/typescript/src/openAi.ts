@@ -6,7 +6,6 @@
  */
 
 import { OpenAIClient } from "@azure/ai-openai";
-import { AzureKeyCredential } from "@azure/core-auth";
 
 // Load the .env file if it exists
 import * as dotenv from "dotenv";
@@ -21,7 +20,7 @@ const doc = "Hello world!";
 export async function main() {
   console.log("== Get completions Sample ==");
 
-  const client = new OpenAIClient(new AzureKeyCredential(openApiKey));
+  const client = new OpenAIClient(openApiKey);
 
   const result = await client.getCompletions(model, doc);
 

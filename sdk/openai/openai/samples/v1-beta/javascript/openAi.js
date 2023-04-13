@@ -6,7 +6,6 @@
  */
 
 const { OpenAIClient } = require("@azure/ai-openai");
-const { AzureKeyCredential } = require("@azure/core-auth");
 
 // Load the .env file if it exists
 require("dotenv").config();
@@ -20,7 +19,7 @@ const doc = "Hello world!";
 async function main() {
   console.log("== Get completions Sample ==");
 
-  const client = new OpenAIClient(new AzureKeyCredential(openApiKey));
+  const client = new OpenAIClient(openApiKey);
 
   const result = await client.getCompletions(model, doc);
 
