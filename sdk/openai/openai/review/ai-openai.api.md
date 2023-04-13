@@ -58,8 +58,6 @@ export interface Choice {
 
 // @public (undocumented)
 export interface ClientOptions extends ClientOptions_2 {
-    // (undocumented)
-    model?: string;
 }
 
 // @public
@@ -215,6 +213,7 @@ export interface GetEmbeddingsOptions extends RequestOptions {
 // @public (undocumented)
 export class OpenAIClient {
     constructor(endpoint: string, credential: AzureKeyCredential | TokenCredential, options?: ClientOptions);
+    constructor(endpoint: string, credential: AzureKeyCredential | TokenCredential, model: string, options?: ClientOptions);
     // (undocumented)
     getChatCompletions(messages: ChatMessage[], options?: GetChatCompletionsOptions): Promise<DeploymentChatCompletionsOptionsChatCompletions>;
     // (undocumented)
@@ -223,16 +222,6 @@ export class OpenAIClient {
     getCompletions(prompt: string[], options?: GetCompletionsOptions): Promise<DeploymentCompletionsOptionsCompletions>;
     // (undocumented)
     getCompletions(options?: GetCompletionsOptions): Promise<DeploymentCompletionsOptionsCompletions>;
-    // (undocumented)
-    getCompletions(prompt: string, options?: GetCompletionsOptions): Promise<DeploymentCompletionsOptionsCompletions>;
-    // (undocumented)
-    getCompletions(prompt: string[], options?: GetCompletionsOptions): Promise<DeploymentCompletionsOptionsCompletions>;
-    // (undocumented)
-    getCompletions(options?: GetCompletionsOptions): Promise<DeploymentCompletionsOptionsCompletions>;
-    // (undocumented)
-    getEmbeddings(input: string, options?: GetEmbeddingsOptions): Promise<DeploymentEmbeddingsOptionsEmbeddings>;
-    // (undocumented)
-    getEmbeddings(input: string[], options?: GetEmbeddingsOptions): Promise<DeploymentEmbeddingsOptionsEmbeddings>;
     // (undocumented)
     getEmbeddings(input: string, options?: GetEmbeddingsOptions): Promise<DeploymentEmbeddingsOptionsEmbeddings>;
     // (undocumented)

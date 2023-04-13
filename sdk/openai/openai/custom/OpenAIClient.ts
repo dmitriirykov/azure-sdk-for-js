@@ -26,13 +26,31 @@ export class OpenAIClient {
   constructor(
     endpoint: string,
     credential: AzureKeyCredential | TokenCredential,
+    options?: ClientOptions
+  );
+  constructor(
+    endpoint: string,
+    credential: AzureKeyCredential | TokenCredential,
+    model: string,
+    options?: ClientOptions
+  );
+  constructor(
+    endpoint: string,
+    credential: AzureKeyCredential | TokenCredential,
+    modelOrOptions: string | ClientOptions = {},
     options: ClientOptions = {}
   ) {
-    this._model = options.model;
-    this._client = createOpenAI(endpoint, credential, options);
+    let opts: ClientOptions;
+    if (typeof modelOrOptions === "string") {
+      this._model = modelOrOptions;
+      opts = options;
+    } else {
+      opts = modelOrOptions;
+    }
+    this._client = createOpenAI(endpoint, credential, opts);
   }
 
-  private getModelName(options: { model?: string }): string {
+  private getModel(options: { model?: string }): string {
     return options.model ?? this._model ?? "gpt-35-turbo";
   }
 
@@ -48,7 +66,7 @@ export class OpenAIClient {
     input: string | string[],
     options: GetEmbeddingsOptions = { requestOptions: {} }
   ): Promise<DeploymentEmbeddingsOptionsEmbeddings> {
-    const model = this.getModelName(options);
+    const model = this.getModel(options);
     return getEmbeddings(this._client, input, model, options);
   }
 
@@ -56,7 +74,7 @@ export class OpenAIClient {
     messages: ChatMessage[],
     options: GetChatCompletionsOptions = { requestOptions: {} }
   ): Promise<DeploymentChatCompletionsOptionsChatCompletions> {
-    const model = this.getModelName(options);
+    const model = this.getModel(options);
     return getChatCompletions(this._client, messages, model, options);
   }
 
@@ -75,7 +93,7 @@ export class OpenAIClient {
     promptOrOptions?: string | string[] | GetCompletionsOptions,
     options: GetCompletionsOptions = { requestOptions: {} }
   ): Promise<DeploymentCompletionsOptionsCompletions> {
-    const model = this.getModelName(options);
+    const model = this.getModel(options);
     return getCompletions(this._client, model, promptOrOptions as any, options);
   }
 }

@@ -23,36 +23,41 @@ export class OpenAIClient {
     private _model?: string;
 
     /** Azure OpenAI APIs for completions and search */
-    constructor(endpoint: string, credential: AzureKeyCredential | TokenCredential, options: ClientOptions = {}) {
-        this._client = createOpenAI(endpoint, credential, options);
+    constructor(endpoint: string, credential: AzureKeyCredential | TokenCredential, options?: ClientOptions);
+    constructor(endpoint: string, credential: AzureKeyCredential | TokenCredential, model: string, options?: ClientOptions);
+    constructor(endpoint: string, credential: AzureKeyCredential | TokenCredential, modelOrOptions: string | ClientOptions = {}, options: ClientOptions = {}) {
+        let opts: ClientOptions;
+        if (typeof modelOrOptions === "string") {
+          this._model = modelOrOptions;
+          opts = options;
+        } else {
+          opts = modelOrOptions;
+        }
+
+        this._client = createOpenAI(endpoint, credential, opts);
     }
 
     getEmbeddings(input: string, options?: GetEmbeddingsOptions): Promise<DeploymentEmbeddingsOptionsEmbeddings>;
     getEmbeddings(input: string[], options?: GetEmbeddingsOptions): Promise<DeploymentEmbeddingsOptionsEmbeddings>;
-    getEmbeddings(input: string, options?: GetEmbeddingsOptions): Promise<DeploymentEmbeddingsOptionsEmbeddings>;
-    getEmbeddings(input: string[], options?: GetEmbeddingsOptions): Promise<DeploymentEmbeddingsOptionsEmbeddings>;
     getEmbeddings(input: string | string[], options: GetEmbeddingsOptions = { requestOptions: {} }): Promise<DeploymentEmbeddingsOptionsEmbeddings> {
-        const model = this.getModelName(options);
+        const model = this.getModel(options);
         return getEmbeddings(this._client, input, model, options);
     }
 
     getChatCompletions(messages: ChatMessage[], options: GetChatCompletionsOptions = { requestOptions: {} }): Promise<DeploymentChatCompletionsOptionsChatCompletions> {
-        const model = this.getModelName(options);
+        const model = this.getModel(options);
         return getChatCompletions(this._client, messages, model, options);
     }
 
     getCompletions(prompt: string, options?: GetCompletionsOptions): Promise<DeploymentCompletionsOptionsCompletions>;
     getCompletions(prompt: string[], options?: GetCompletionsOptions): Promise<DeploymentCompletionsOptionsCompletions>;
     getCompletions(options?: GetCompletionsOptions): Promise<DeploymentCompletionsOptionsCompletions>;
-    getCompletions(prompt: string, options?: GetCompletionsOptions): Promise<DeploymentCompletionsOptionsCompletions>;
-    getCompletions(prompt: string[], options?: GetCompletionsOptions): Promise<DeploymentCompletionsOptionsCompletions>;
-    getCompletions(options?: GetCompletionsOptions): Promise<DeploymentCompletionsOptionsCompletions>;
     getCompletions(promptOrOptions?: string | string[] | GetCompletionsOptions, options: GetCompletionsOptions = { requestOptions: {} }): Promise<DeploymentCompletionsOptionsCompletions> {
-        const model = this.getModelName(options);
+        const model = this.getModel(options);
         return getCompletions(this._client, model, promptOrOptions as any, options);
     }
 
-    private getModelName(options: { model?: string }): string {
+    private getModel(options: { model?: string }): string {
         return options.model ?? this._model ?? "gpt-35-turbo";
     }
 }

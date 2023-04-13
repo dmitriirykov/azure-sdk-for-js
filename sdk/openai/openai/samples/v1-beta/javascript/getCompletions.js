@@ -21,7 +21,7 @@ const doc = "Hello world!";
 async function main() {
   console.log("== Get completions Sample ==");
 
-  const client = new OpenAIClient(endpoint, new AzureKeyCredential(apiKey), { model });
+  const client = new OpenAIClient(endpoint, new AzureKeyCredential(apiKey), model);
 
   const result = await client.getCompletions(doc);
 
